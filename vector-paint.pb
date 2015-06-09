@@ -11,8 +11,7 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.23"
-IncludeFile "vector-paint-form.pbf"
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.24"
 
 #start = 1
 #stop = 2
@@ -21,18 +20,21 @@ IncludeFile "vector-paint-form.pbf"
 #endSquare = 5
 #white = 16777215
 #red = 255
+#green = 65280
 Enumeration
-  #up
-  #down
-  #left
-  #right
-  #return
   #canvas2editor
   #DebugBtns
   #IMAGE_Color
-  #undo
-  #redo
 EndEnumeration
+
+IncludeFile "vector-paint-form.pbf"
+
+Procedure Modulo(num)
+  If num < 0
+    ProcedureReturn -num
+  EndIf
+  ProcedureReturn num
+EndProcedure
 
 Procedure addDot(x,y,type=#start,color=#white)
   AddElement(all())
@@ -57,13 +59,15 @@ Procedure popalDot(mX, mY, objX, objY, objW = 5, objH = 5)
 EndProcedure
 
 Procedure popalSquare(mX, mY, objX, objY, objW, objH)
+  Debug "If mX >= objX And mX <= objW And mY >= objY And mY <= objH"
+  Debug "If "+Str(mX)+" >= "+Str(objX)+" And "+Str(mX)+" <= "+Str(objW)+" And "+Str(mY)+" >= "+Str(objY)+" And "+Str(mY)+" <= "+Str(objH)
   If mX >= objX And mX <= objW And mY >= objY And mY <= objH
     ProcedureReturn #True
   EndIf
   ProcedureReturn #False
 EndProcedure
 
-Macro macroDrawAll
+Procedure drawAll()
   StartDrawing(CanvasOutput(#canva))
   Box(0,0,300,300,0)
   For i = 0 To ListSize(all())-1
@@ -98,23 +102,21 @@ Macro macroDrawAll
     y = every()\y
     Select type
       Case #startSquare
-        Circle(x,y,R,#red)
+        Circle(x,y,R,#green)
       Case #endSquare
         DrawingMode(#PB_2DDrawing_Outlined)
-        SelectElement(every(),i-1)
-        x2 = every()\x
-        y2 = every()\y
-        Box(x,y,x2-x,y2-y,#red)
-        DrawingMode(#PB_2DDrawing_Default)
-        Circle(x,y,R,#red)
+        If i>0
+          SelectElement(every(),i-1)
+          x2 = every()\x
+          y2 = every()\y
+          Box(x,y,x2-x,y2-y,#green)
+          DrawingMode(#PB_2DDrawing_Default)
+          Circle(x,y,R,#green)
+        EndIf
         SelectElement(every(),i)
     EndSelect
   Next
   StopDrawing()
-EndMacro
-
-Procedure drawAll()
-  macroDrawAll
 EndProcedure
 
 Procedure editor2canvas()
@@ -233,20 +235,32 @@ EndIf
 EndMacro
 
 Openwnd()
-addFewDots(13)
-clrBtn
 
+addSquare(50,50,#startSquare)
+addSquare(100,100,#endSquare)
+addSquare(200,50,#startSquare)
+addSquare(150,100,#endSquare)
+addSquare(50,200,#startSquare)
+addSquare(100,150,#endSquare)
+addSquare(200,200,#startSquare)
+addSquare(150,150,#endSquare)
+addDot(73,176)
+
+clrBtn
+IncludeFile "vector-paint-keyb.pb"
 CurrentMode = #AddClickArea
 DisableGadget(#AddClickArea,1)
 
-AddKeyboardShortcut(#wnd,#PB_Shortcut_W,#up)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_S,#down)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_A,#left)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_D,#right)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_Space,#stopLine)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_Control|#PB_Shortcut_Z,#undo)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_Control|#PB_Shortcut_Y,#redo)
-AddKeyboardShortcut(#wnd,#PB_Shortcut_Control|#PB_Shortcut_Shift|#PB_Shortcut_Z,#redo)
+Macro Hide
+  If GetGadgetState(#Hide)
+    R = 0
+    SetGadgetState(#Hide,0)
+  Else
+    R = 5
+    SetGadgetState(#Hide,1)
+  EndIf
+  drawAll()
+EndMacro
 
 Repeat
   event = WaitWindowEvent()
@@ -294,18 +308,18 @@ Repeat
                     SelectElement(every(),i)
                   EndIf
                   Debug "mX="+Str(mX)+",mY="+Str(mY)
-                  objW = x-x2
+                  objW = Modulo(x-x2)
                   Debug "objW="+Str(objW)
-                  objH = y-y2
+                  objH = Modulo(y-y2)
                   Debug "objH="+Str(objH)
-                  If popalSquare(mX,mY,x,y,x+objW,y+objH) 
-                    Debug "Попал в прямоугольник"
+                  If popalSquare(mX,mY,x2,y,x+objW,y+objH) 
+                    Debug "ПОПАЛ!!!"
                     offsetX = mX - x
                     offsetY = mY - y
                     selectedObject = i
                     Break
                   Else
-                    Debug "Не попал в прямоугольник"
+                    Debug "Мимо, капитан"
                   EndIf
                 Next
                 
@@ -351,7 +365,7 @@ Repeat
           If Gadget = EventGadget
             DisableGadget(Gadget, 1) 
           Else
-            DisableGadget(Gadget, 0) ; unset the state of all other gadgets
+            DisableGadget(Gadget, 0)
           EndIf
         Next Gadget          
         CurrentMode = EventGadget 
@@ -466,6 +480,9 @@ Repeat
         Debug "Undo"
       Case #redo
         Debug "Redo"
+      Case #hideDots
+        Debug "H btn pressed"
+        Hide
     EndSelect
   EndIf
 Until event = #PB_Event_CloseWindow
