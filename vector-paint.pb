@@ -3,7 +3,7 @@
   y.w
   type.b
 EndStructure
-  
+
 Structure dot
   x.w
   y.w
@@ -11,7 +11,7 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.24"
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.25"
 
 #start = 1
 #stop = 2
@@ -133,88 +133,106 @@ Procedure editor2canvas()
   Next
 EndProcedure
 
+Procedure editorSquares2canvas()
+  ClearList(every())
+  For i=0 To CountGadgetItems(#editorSquares)-1
+    string$ = GetGadgetItemText(#editorSquares,i)
+    x = Val(StringField(string$, 1, ","))
+    pos_type = FindString(string$, ",")+1
+    y = Val(Mid(string$,pos_type))
+    type = Val(Mid(string$,FindString(string$, ",", pos_type+1)+1))
+    addSquare(x,y,type)
+  Next
+EndProcedure
+
 Procedure proc(text$)
   AddGadgetItem(#editor2proc,-1,text$)
 EndProcedure
 
-Procedure canvas2editor()
-  ClearGadgetItems(#editor2proc)
-  ;proc(macroDrawAll) - так к сожалению не работает
-  ;#CRLF$ - символ переноса строки
-  ;здесь нужно добавить структуру all()
-proc("#canva = 13")
-proc("#start = 1")
-proc("#stop = 2")
-proc("#area = 3")
-proc("#startSquare = 4")
-proc("#endSquare = 5")
-proc("#white = 16777215")
-  proc("Structure dot")
-    proc("type.b")
-    proc("x.w")
-    proc("y.w")
-    proc("color.l")
-    proc("EndStructure")
-    proc("Global NewList all.dot()")
-    proc("Procedure drawAll()")
-proc("StartDrawing(CanvasOutput(#canva))")
-proc("Box(0,0,300,300,0)")
-proc("For i = 0 To ListSize(all())-1")
-proc("SelectElement(all(),i)")
-proc("type = all()\type")
-proc("x = all()\x")
-proc("y = all()\y")
-proc("color = all()\color")
-proc("Select type")
-proc("Case #start")
-proc("Circle(x,y,R,color)")
-proc("If i > 0 And Not type = #stop")
-proc("SelectElement(all(),i-1)")
-proc("x2 = all()\x")
-proc("y2 = all()\y")
-proc("LineXY(x,y,x2,y2,color)")
-proc("SelectElement(all(),i)")
-proc("EndIf")
-proc("Case #stop  ")
-proc("Circle(x,y,R,color)")
-proc("Case #area")
-proc("FillArea(x,y,-1,color)")
-proc("DrawingMode(#PB_2DDrawing_XOr)")
-proc("Circle(x,y,R,color)")
-proc("DrawingMode(#PB_2DDrawing_Default)")
-proc("Case #startSquare")
-proc("Circle(x,y,R,color)")
-proc("Case #endSquare")
-proc("DrawingMode(#PB_2DDrawing_Outlined)")
-proc("SelectElement(all(),i-1)")
-proc("x2 = all()\x")
-proc("y2 = all()\y")
-proc("Box(x,y,x2-x,y2-y,color)")
-proc("DrawingMode(#PB_2DDrawing_Default)")
-proc("Circle(x,y,R,color)")
-proc("SelectElement(all(),i)")
-proc("EndSelect")
-proc("Next")
-proc("StopDrawing()")
-proc("EndProcedure")
-    proc("Procedure addDot(x,y,type=#start,color=#white)")
-  proc("AddElement(all())")
-  proc("all()\type = type")
-  proc("all()\x = x")
-  proc("all()\y = y")
-  proc("all()\color = color")
-  proc("EndProcedure")
+Procedure list2txt()
   ClearGadgetItems(#editor)
   ForEach all()
     txt$ = Str(all()\x)+","+Str(all()\y)+","+Str(all()\type)+","+Str(all()\color)
     AddGadgetItem(#editor,-1,txt$)
     AddGadgetItem(#editor2proc,-1,"addDot("+txt$+")")
   Next
+  ClearGadgetItems(#editorSquares)
+  ForEach every()
+    txt$ = Str(every()\x)+","+Str(every()\y)+","+Str(every()\type)
+    AddGadgetItem(#editorSquares,-1,txt$)
+  Next
+EndProcedure
+
+Procedure canvas2editor()
+  ClearGadgetItems(#editor2proc)
+  proc("#canva = 13")
+  proc("#start = 1")
+  proc("#stop = 2")
+  proc("#area = 3")
+  proc("#startSquare = 4")
+  proc("#endSquare = 5")
+  proc("#white = 16777215")
+  proc("Structure dot")
+  proc("type.b")
+  proc("x.w")
+  proc("y.w")
+  proc("color.l")
+  proc("EndStructure")
+  proc("Global NewList all.dot()")
+  proc("Procedure drawAll()")
+  proc("StartDrawing(CanvasOutput(#canva))")
+  proc("Box(0,0,300,300,0)")
+  proc("For i = 0 To ListSize(all())-1")
+  proc("SelectElement(all(),i)")
+  proc("type = all()\type")
+  proc("x = all()\x")
+  proc("y = all()\y")
+  proc("color = all()\color")
+  proc("Select type")
+  proc("Case #start")
+  proc("Circle(x,y,R,color)")
+  proc("If i > 0 And Not type = #stop")
+  proc("SelectElement(all(),i-1)")
+  proc("x2 = all()\x")
+  proc("y2 = all()\y")
+  proc("LineXY(x,y,x2,y2,color)")
+  proc("SelectElement(all(),i)")
+  proc("EndIf")
+  proc("Case #stop  ")
+  proc("Circle(x,y,R,color)")
+  proc("Case #area")
+  proc("FillArea(x,y,-1,color)")
+  proc("DrawingMode(#PB_2DDrawing_XOr)")
+  proc("Circle(x,y,R,color)")
+  proc("DrawingMode(#PB_2DDrawing_Default)")
+  proc("Case #startSquare")
+  proc("Circle(x,y,R,color)")
+  proc("Case #endSquare")
+  proc("DrawingMode(#PB_2DDrawing_Outlined)")
+  proc("SelectElement(all(),i-1)")
+  proc("x2 = all()\x")
+  proc("y2 = all()\y")
+  proc("Box(x,y,x2-x,y2-y,color)")
+  proc("DrawingMode(#PB_2DDrawing_Default)")
+  proc("Circle(x,y,R,color)")
+  proc("SelectElement(all(),i)")
+  proc("EndSelect")
+  proc("Next")
+  proc("StopDrawing()")
+  proc("EndProcedure")
+  proc("Procedure addDot(x,y,type=#start,color=#white)")
+  proc("AddElement(all())")
+  proc("all()\type = type")
+  proc("all()\x = x")
+  proc("all()\y = y")
+  proc("all()\color = color")
+  proc("EndProcedure")
+  list2txt()
   proc("OpenWindow(0,#PB_Ignore,#PB_Ignore,300,300,"+#DQUOTE$+#DQUOTE$+", #PB_Window_SystemMenu | #PB_Window_ScreenCentered )")
   proc("CanvasGadget(#canva,0,0,300,300)")
   proc("drawAll()")
   proc("Repeat")
-    proc("Until WaitWindowEvent() = #PB_Event_CloseWindow")
+  proc("Until WaitWindowEvent() = #PB_Event_CloseWindow")
 EndProcedure
 
 Procedure addFewDots(num)
@@ -227,40 +245,33 @@ EndProcedure
 CurrentColor = Red(255)
 CreateImage(#IMAGE_Color, 100, 30)
 Macro clrBtn
-If StartDrawing(ImageOutput(#IMAGE_Color))
-  Box(0, 0, 100, 30, CurrentColor)
-  StopDrawing()
-  SetGadgetAttribute(#GADGET_Color, #PB_Button_Image, ImageID(#IMAGE_Color))
-EndIf
+  If StartDrawing(ImageOutput(#IMAGE_Color))
+    Box(0, 0, 100, 30, CurrentColor)
+    StopDrawing()
+    SetGadgetAttribute(#GADGET_Color, #PB_Button_Image, ImageID(#IMAGE_Color))
+  EndIf
 EndMacro
 
+Procedure squares()
+  addSquare(50,50,#startSquare)
+  addSquare(100,100,#endSquare)
+  addSquare(200,50,#startSquare)
+  addSquare(150,100,#endSquare)
+  addSquare(50,200,#startSquare)
+  addSquare(100,150,#endSquare)
+  addSquare(200,200,#startSquare)
+  addSquare(150,150,#endSquare)
+  addDot(73,176)
+EndProcedure
+
 Openwnd()
-
-addSquare(50,50,#startSquare)
-addSquare(100,100,#endSquare)
-addSquare(200,50,#startSquare)
-addSquare(150,100,#endSquare)
-addSquare(50,200,#startSquare)
-addSquare(100,150,#endSquare)
-addSquare(200,200,#startSquare)
-addSquare(150,150,#endSquare)
-addDot(73,176)
-
+squares()
 clrBtn
+
 IncludeFile "vector-paint-keyb.pb"
 CurrentMode = #AddClickArea
 DisableGadget(#AddClickArea,1)
 
-Macro Hide
-  If GetGadgetState(#Hide)
-    R = 0
-    SetGadgetState(#Hide,0)
-  Else
-    R = 5
-    SetGadgetState(#Hide,1)
-  EndIf
-  drawAll()
-EndMacro
 
 Repeat
   event = WaitWindowEvent()
@@ -276,74 +287,81 @@ Repeat
             StartY = mY
             If Not buttonPressed
               buttonPressed = #True
-              If CurrentMode = #Add
-                addDot(mX, mY,#start,CurrentColor)
-                SelectElement(all(),ListSize(all())-1)
-                all()\x = mX - R/2
-                all()\y = mY - R/2
-                Debug "added element ["+Str(all()\x) + "," + Str(all()\y) +"]"
-              ElseIf CurrentMode = #Fill
-                addDot(mX,mY,#area,CurrentColor) ;areaFill
-                
-              ElseIf CurrentMode = #AddClickArea
-                If trigger
-                  addSquare(mX,mY,#endSquare)
-                  trigger = 0
-                Else
-                  addSquare(mX,mY,#startSquare)
-                  trigger = 1
-                EndIf
-                
-              ElseIf CurrentMode = #DebugBtns
-                For i = ListSize(every())-1 To 0 Step -2
-                  SelectElement(every(),i)
-                  x = every()\x
-                  y = every()\y
-                  Debug "x="+Str(x) +",y="+ Str(y)
-                  If i>0
-                    SelectElement(every(),i-1)
-                    x2 = every()\x
-                    y2 = every()\y
-                    Debug "x2="+Str(x2) +",y2="+ Str(y2)
-                    SelectElement(every(),i)
-                  EndIf
-                  Debug "mX="+Str(mX)+",mY="+Str(mY)
-                  objW = Modulo(x-x2)
-                  Debug "objW="+Str(objW)
-                  objH = Modulo(y-y2)
-                  Debug "objH="+Str(objH)
-                  If popalSquare(mX,mY,x2,y,x+objW,y+objH) 
-                    Debug "ПОПАЛ!!!"
-                    offsetX = mX - x
-                    offsetY = mY - y
-                    selectedObject = i
-                    Break
+              Select CurrentMode 
+                Case #Add
+                  addDot(mX, mY,#start,CurrentColor)
+                  SelectElement(all(),ListSize(all())-1)
+                  all()\x = mX - R/2
+                  all()\y = mY - R/2
+                  Debug "added element ["+Str(all()\x) + "," + Str(all()\y) +"]"
+                  
+                Case #Fill
+                  addDot(mX,mY,#area,CurrentColor) ;areaFill
+                  
+                Case #AddClickArea
+                  If trigger
+                    addSquare(mX,mY,#endSquare)
+                    trigger = 0
                   Else
-                    Debug "Мимо, капитан"
+                    addSquare(mX,mY,#startSquare)
+                    trigger = 1
                   EndIf
-                Next
-                
-              Else;If CurrentMode = #Move Or CurrentMode = #Delete 
-                For i = ListSize(all())-1 To 0 Step -1
-                  SelectElement(all(),i)
-                  If popalDot(mX,mY,all()\x,all()\y)
-                    Debug "touched element [" + Str(all()\x) + "," + Str(all()\y) + ","+i+"]"
-                    offsetX = mX - all()\x
-                    offsetY = mY - all()\y
-                    selectedObject = i
-                    If CurrentMode = #Delete
-                      Debug "deleted element [" + Str(all()\x) + "," + Str(all()\y) + ","+i+"]"
-                      DeleteElement(all())
+                  
+                Case #DebugBtns
+                  For i = ListSize(every())-1 To 0 Step -2
+                    SelectElement(every(),i)
+                    x = every()\x
+                    y = every()\y
+                    If i>0
+                      SelectElement(every(),i-1)
+                      x2 = every()\x
+                      y2 = every()\y
+                      SelectElement(every(),i)
+                      objW = Modulo(x-x2)
+                      objH = Modulo(y-y2)
+                      Debug "x="+Str(x) +",y="+ Str(y)+"| x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
+                      If x > x2
+                        x2 = x
+                      EndIf
+                      If y > y2
+                        y2 = y
+                      EndIf
+                      If popalSquare(mX,mY,x,y,x+objW,y+objH) 
+                        Debug "HIT!!!"
+                        offsetX = mX - x
+                        offsetY = mY - y
+                        selectedObject = i
+                        Break
+                      Else
+                        Debug "Fail"
+                      EndIf
+                    Else
+                      Debug "No square"
                     EndIf
-                    Break
-                  EndIf
-                Next
-              EndIf
+                  Next
+                  Debug "==="
+                  
+                Case #Move, #Delete 
+                  For i = ListSize(all())-1 To 0 Step -1
+                    SelectElement(all(),i)
+                    If popalDot(mX,mY,all()\x,all()\y)
+                      Debug "touched element [" + Str(all()\x) + "," + Str(all()\y) + ","+i+"]"
+                      offsetX = mX - all()\x
+                      offsetY = mY - all()\y
+                      selectedObject = i
+                      If CurrentMode = #Delete
+                        Debug "deleted element [" + Str(all()\x) + "," + Str(all()\y) + ","+i+"]"
+                        DeleteElement(all())
+                      EndIf
+                      Break
+                    EndIf
+                  Next
+              EndSelect
               drawAll()
             EndIf
             
           Case #PB_EventType_MouseMove
-            If buttonPressed And selectedObject > -1 And CurrentMode = #Move
+            If (buttonPressed And selectedObject > -1 And CurrentMode = #Move)
               SelectElement(all(),selectedObject)
               all()\x = mX - offsetX
               all()\y = mY - offsetY
@@ -359,7 +377,7 @@ Repeat
             canvas2editor()
         EndSelect
         
-      Case #Add, #Delete, #Move, #Fill, #AddClickArea
+      Case #Add, #Delete, #Move, #Fill, #AddClickArea, #Squares2btns
         EventGadget = EventGadget()
         For Gadget = #Add To #Delete
           If Gadget = EventGadget
@@ -379,21 +397,6 @@ Repeat
           R = 0
         Else
           R = 5
-        EndIf
-        
-      Case #Squares2btns
-        If GetGadgetState(#Squares2btns)
-          tmp = CurrentMode
-          CurrentMode = #DebugBtns
-          For Gadget = #Add To #Delete
-            DisableGadget(Gadget,1)
-          Next
-        Else
-          CurrentMode = tmp
-          tmp = 0
-          For Gadget = #Add To #Delete
-            DisableGadget(Gadget,0)
-          Next
         EndIf
         
       Case #Clear
@@ -435,9 +438,12 @@ Repeat
             MessageRequester("Ой","Почему-то не могу создать файл")
           EndIf       
         EndIf
-                
+        
       Case #editor2canvas
         editor2canvas()
+        
+      Case #squares2canvas
+        editorSquares2canvas()
         
       Case #GADGET_Color
         CurrentColor = ColorRequester(CurrentColor)
@@ -446,6 +452,10 @@ Repeat
       Case #stop
         SelectElement(all(),ListSize(all())-1)
         all()\type = #stop
+        
+      Case #squares
+        squares()
+        
     EndSelect
     drawAll()
   EndIf
@@ -480,17 +490,13 @@ Repeat
         Debug "Undo"
       Case #redo
         Debug "Redo"
-      Case #hideDots
-        Debug "H btn pressed"
-        Hide
     EndSelect
   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 80
-; FirstLine = 54
+; CursorPosition = 331
 ; Folding = ---
-; Markers = 297,485
+; Markers = 310,492
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
