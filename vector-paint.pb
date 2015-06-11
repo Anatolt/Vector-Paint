@@ -11,23 +11,49 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.25"
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.26"
 
-#start = 1
-#stop = 2
-#area = 3
-#startSquare = 4
-#endSquare = 5
 #white = 16777215
 #red = 255
 #green = 65280
-Enumeration
+Enumeration code
+  #start
+  #stop
+  #area
+  #squareBegin
+  #squareEnd
   #canvas2editor
   #DebugBtns
   #IMAGE_Color
 EndEnumeration
 
 IncludeFile "vector-paint-form.pbf"
+Debug #wnd
+Debug #start
+Debug #stop
+Debug #area
+Debug #squareBegin
+Debug #squareEnd
+Debug #Add
+Debug #Move
+Debug #Fill
+Debug #AddClickArea
+Debug #Squares2btns
+Debug #Delete
+Debug #Random
+Debug #Hide
+Debug #Clear
+Debug #Save
+Debug #Open
+Debug #GADGET_Color
+Debug #editor2canvas
+Debug #stopLine
+Debug #canva
+Debug #editor
+Debug #editor2proc
+Debug #editorSquares
+Debug #squares2canvas
+Debug #squares
 
 Procedure Modulo(num)
   If num < 0
@@ -101,9 +127,9 @@ Procedure drawAll()
     x = every()\x
     y = every()\y
     Select type
-      Case #startSquare
+      Case #squareBegin
         Circle(x,y,R,#green)
-      Case #endSquare
+      Case #squareEnd
         DrawingMode(#PB_2DDrawing_Outlined)
         If i>0
           SelectElement(every(),i-1)
@@ -152,13 +178,27 @@ EndProcedure
 Procedure list2txt()
   ClearGadgetItems(#editor)
   ForEach all()
-    txt$ = Str(all()\x)+","+Str(all()\y)+","+Str(all()\type)+","+Str(all()\color)
+    Select all()\type
+      Case #start
+        type$ = "#start"
+      Case #stop
+        type$ = "#stop"
+      Case #area
+        type$ = "#area"
+    EndSelect
+    txt$ = Str(all()\x)+","+Str(all()\y)+","+type$+","+Str(all()\color)
     AddGadgetItem(#editor,-1,txt$)
     AddGadgetItem(#editor2proc,-1,"addDot("+txt$+")")
   Next
   ClearGadgetItems(#editorSquares)
   ForEach every()
-    txt$ = Str(every()\x)+","+Str(every()\y)+","+Str(every()\type)
+    Select every()\type
+      Case #squareBegin
+        type$ = "#squareBegin"
+      Case #squareEnd
+        type$ = "#squareEnd"
+    EndSelect
+    txt$ = Str(every()\x)+","+Str(every()\y)+","+type$
     AddGadgetItem(#editorSquares,-1,txt$)
   Next
 EndProcedure
@@ -169,8 +209,8 @@ Procedure canvas2editor()
   proc("#start = 1")
   proc("#stop = 2")
   proc("#area = 3")
-  proc("#startSquare = 4")
-  proc("#endSquare = 5")
+  proc("#squareBegin = 4")
+  proc("#squareEnd = 5")
   proc("#white = 16777215")
   proc("Structure dot")
   proc("type.b")
@@ -205,9 +245,9 @@ Procedure canvas2editor()
   proc("DrawingMode(#PB_2DDrawing_XOr)")
   proc("Circle(x,y,R,color)")
   proc("DrawingMode(#PB_2DDrawing_Default)")
-  proc("Case #startSquare")
+  proc("Case #squareBegin")
   proc("Circle(x,y,R,color)")
-  proc("Case #endSquare")
+  proc("Case #squareEnd")
   proc("DrawingMode(#PB_2DDrawing_Outlined)")
   proc("SelectElement(all(),i-1)")
   proc("x2 = all()\x")
@@ -253,15 +293,15 @@ Macro clrBtn
 EndMacro
 
 Procedure squares()
-  addSquare(50,50,#startSquare)
-  addSquare(100,100,#endSquare)
-  addSquare(200,50,#startSquare)
-  addSquare(150,100,#endSquare)
-  addSquare(50,200,#startSquare)
-  addSquare(100,150,#endSquare)
-  addSquare(200,200,#startSquare)
-  addSquare(150,150,#endSquare)
-  addDot(73,176)
+  addSquare(50,50,#squareBegin)
+  addSquare(100,100,#squareEnd)
+  addSquare(200,50,#squareBegin)
+  addSquare(150,100,#squareEnd)
+  addSquare(50,200,#squareBegin)
+  addSquare(100,150,#squareEnd)
+  addSquare(200,200,#squareBegin)
+  addSquare(150,150,#squareEnd)
+;   addDot(73,176)
 EndProcedure
 
 Openwnd()
@@ -300,14 +340,14 @@ Repeat
                   
                 Case #AddClickArea
                   If trigger
-                    addSquare(mX,mY,#endSquare)
+                    addSquare(mX,mY,#squareEnd)
                     trigger = 0
                   Else
-                    addSquare(mX,mY,#startSquare)
+                    addSquare(mX,mY,#squareBegin)
                     trigger = 1
                   EndIf
                   
-                Case #DebugBtns
+                Case #Squares2btns
                   For i = ListSize(every())-1 To 0 Step -2
                     SelectElement(every(),i)
                     x = every()\x
@@ -326,7 +366,7 @@ Repeat
                       If y > y2
                         y2 = y
                       EndIf
-                      If popalSquare(mX,mY,x,y,x+objW,y+objH) 
+                      If popalSquare(mX,mY,x2,y2,x+objW,y+objH) 
                         Debug "HIT!!!"
                         offsetX = mX - x
                         offsetY = mY - y
@@ -494,9 +534,10 @@ Repeat
   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 331
-; Folding = ---
-; Markers = 310,492
+; CursorPosition = 368
+; FirstLine = 140
+; Folding = AA+
+; Markers = 350,532
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
