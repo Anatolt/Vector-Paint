@@ -11,7 +11,8 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.26"
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.27"
+
 
 #white = 16777215
 #red = 255
@@ -28,32 +29,6 @@ Enumeration code
 EndEnumeration
 
 IncludeFile "vector-paint-form.pbf"
-Debug #wnd
-Debug #start
-Debug #stop
-Debug #area
-Debug #squareBegin
-Debug #squareEnd
-Debug #Add
-Debug #Move
-Debug #Fill
-Debug #AddClickArea
-Debug #Squares2btns
-Debug #Delete
-Debug #Random
-Debug #Hide
-Debug #Clear
-Debug #Save
-Debug #Open
-Debug #GADGET_Color
-Debug #editor2canvas
-Debug #stopLine
-Debug #canva
-Debug #editor
-Debug #editor2proc
-Debug #editorSquares
-Debug #squares2canvas
-Debug #squares
 
 Procedure Modulo(num)
   If num < 0
@@ -85,9 +60,9 @@ Procedure popalDot(mX, mY, objX, objY, objW = 5, objH = 5)
 EndProcedure
 
 Procedure popalSquare(mX, mY, objX, objY, objW, objH)
-  Debug "If mX >= objX And mX <= objW And mY >= objY And mY <= objH"
-  Debug "If "+Str(mX)+" >= "+Str(objX)+" And "+Str(mX)+" <= "+Str(objW)+" And "+Str(mY)+" >= "+Str(objY)+" And "+Str(mY)+" <= "+Str(objH)
-  If mX >= objX And mX <= objW And mY >= objY And mY <= objH
+  Debug "If mX >= objX And mX <= objX+objW And mY >= objY And mY <= objY+objH"
+  Debug "If "+Str(mX)+" >= "+Str(objX)+" And "+Str(mX)+" <= "+Str(objX+objW)+" And "+Str(mY)+" >= "+Str(objY)+" And "+Str(mY)+" <= "+Str(objY+objH)
+  If mX >= objX And mX <= objX+objW And mY >= objY And mY <= objY+objH
     ProcedureReturn #True
   EndIf
   ProcedureReturn #False
@@ -153,8 +128,21 @@ Procedure editor2canvas()
     pos_type = FindString(string$, ",")+1
     y = Val(Mid(string$,pos_type))
     pos_color = FindString(string$, ",", pos_type+1)
-    type = Val(Mid(string$,FindString(string$, ",", pos_type+1)+1))
+    type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
+    Select type$
+      Case "#squareBegin"
+        type = #squareBegin
+      Case "#squareEnd"
+        type = #squareEnd
+      Case "#start"
+        type = #start
+      Case "#stop"
+        type = #stop
+      Case "#area"
+        type = #area
+    EndSelect
     color = Val(Mid(string$,FindString(string$, ",", pos_color+1)+1))
+    Debug "addDot("+Str(x)+","+Str(y)+","+Str(type)+","+Str(color)+")"
     addDot(x,y,type,color)
   Next
 EndProcedure
@@ -166,7 +154,13 @@ Procedure editorSquares2canvas()
     x = Val(StringField(string$, 1, ","))
     pos_type = FindString(string$, ",")+1
     y = Val(Mid(string$,pos_type))
-    type = Val(Mid(string$,FindString(string$, ",", pos_type+1)+1))
+    type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
+    Select type$
+      Case "#squareBegin"
+        type = #squareBegin
+      Case "#squareEnd"
+        type = #squareEnd
+    EndSelect
     addSquare(x,y,type)
   Next
 EndProcedure
@@ -307,10 +301,11 @@ EndProcedure
 Openwnd()
 squares()
 clrBtn
+canvas2editor()
 
-IncludeFile "vector-paint-keyb.pb"
-CurrentMode = #AddClickArea
-DisableGadget(#AddClickArea,1)
+; IncludeFile "vector-paint-keyb.pb"
+CurrentMode = #Squares2btns
+DisableGadget(#Squares2btns,1)
 
 
 Repeat
@@ -359,15 +354,16 @@ Repeat
                       SelectElement(every(),i)
                       objW = Modulo(x-x2)
                       objH = Modulo(y-y2)
-                      Debug "x="+Str(x) +",y="+ Str(y)+"| x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
-                      If x > x2
+                      Debug "x="+Str(x) +",y="+ Str(y)+" | x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
+                      If x < x2
                         x2 = x
                       EndIf
-                      If y > y2
+                      If y < y2
                         y2 = y
                       EndIf
-                      If popalSquare(mX,mY,x2,y2,x+objW,y+objH) 
+                      If popalSquare(mX,mY,x2,y2,objW,objH) 
                         Debug "HIT!!!"
+                        MessageRequester("HIT!!!","HIT!!!")
                         offsetX = mX - x
                         offsetY = mY - y
                         selectedObject = i
@@ -500,44 +496,45 @@ Repeat
     drawAll()
   EndIf
   
-  If event = #PB_Event_Menu
-    Select EventMenu()
-      Case #down
-        SelectElement(all(),0)
-        all()\y + 10
-        selectedObject = -1
-        drawAll()
-      Case #up
-        SelectElement(all(),0)
-        all()\y - 10
-        selectedObject = -1
-        drawAll()
-      Case #left
-        SelectElement(all(),0)
-        all()\x - 10
-        selectedObject = -1
-        drawAll()
-      Case #right
-        SelectElement(all(),0)
-        all()\x + 10
-        selectedObject = -1
-        drawAll()
-      Case #stopLine
-        SelectElement(all(),ListSize(all())-1)
-        all()\type = #stop
-        drawAll()
-      Case #undo
-        Debug "Undo"
-      Case #redo
-        Debug "Redo"
-    EndSelect
-  EndIf
+;   If event = #PB_Event_Menu And #PB_EventType_Focus ; только если мышь на канве
+;     Select EventMenu()
+;       Case #down
+;         SelectElement(all(),0)
+;         all()\y + 10
+;         selectedObject = -1
+;         drawAll()
+;       Case #up
+;         SelectElement(all(),0)
+;         all()\y - 10
+;         selectedObject = -1
+;         drawAll()
+;       Case #left
+;         SelectElement(all(),0)
+;         all()\x - 10
+;         selectedObject = -1
+;         drawAll()
+;       Case #right
+;         SelectElement(all(),0)
+;         all()\x + 10
+;         selectedObject = -1
+;         drawAll()
+;       Case #stopLine
+;         SelectElement(all(),ListSize(all())-1)
+;         all()\type = #stop
+;         drawAll()
+;       Case #undo
+;         Debug "Undo"
+;       Case #redo
+;         Debug "Redo"
+;     EndSelect
+;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 368
-; FirstLine = 140
-; Folding = AA+
-; Markers = 350,532
+; CursorPosition = 63
+; FirstLine = 39
+; Folding = UD9
+; Markers = 345,528
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
+; Executable = ..\..\..\Desktop\123.exe
