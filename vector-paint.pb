@@ -2,6 +2,7 @@
   x.w
   y.w
   type.b
+  id.s
 EndStructure
 
 Structure dot
@@ -11,7 +12,7 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.27"
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.28", squareCounter, id$
 
 
 #white = 16777215
@@ -45,8 +46,9 @@ Procedure addDot(x,y,type=#start,color=#white)
   all()\color = color ;Random(#white-100)
 EndProcedure
 
-Procedure addSquare(x,y,type)
+Procedure addSquare(x,y,type,id$="")
   AddElement(every())
+  every()\id = id$
   every()\x = x
   every()\y = y
   every()\type = type
@@ -124,16 +126,12 @@ Procedure editor2canvas()
   ClearList(all())
   For i=0 To CountGadgetItems(#editor)-1
     string$ = GetGadgetItemText(#editor,i)
-    x = Val(StringField(string$, 1, ","))
     pos_type = FindString(string$, ",")+1
-    y = Val(Mid(string$,pos_type))
     pos_color = FindString(string$, ",", pos_type+1)
+    x = Val(StringField(string$, 1, ","))
+    y = Val(Mid(string$,pos_type))
     type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
     Select type$
-      Case "#squareBegin"
-        type = #squareBegin
-      Case "#squareEnd"
-        type = #squareEnd
       Case "#start"
         type = #start
       Case "#stop"
@@ -142,7 +140,7 @@ Procedure editor2canvas()
         type = #area
     EndSelect
     color = Val(Mid(string$,FindString(string$, ",", pos_color+1)+1))
-    Debug "addDot("+Str(x)+","+Str(y)+","+Str(type)+","+Str(color)+")"
+    Debug "addDot("+Str(x)+","+Str(y)+","+type$+","+Str(color)+")"
     addDot(x,y,type,color)
   Next
 EndProcedure
@@ -151,17 +149,19 @@ Procedure editorSquares2canvas()
   ClearList(every())
   For i=0 To CountGadgetItems(#editorSquares)-1
     string$ = GetGadgetItemText(#editorSquares,i)
-    x = Val(StringField(string$, 1, ","))
     pos_type = FindString(string$, ",")+1
+    pos_id = FindString(string$, ",",pos_type+1)+1
+    x = Val(StringField(string$, 1, ","))
     y = Val(Mid(string$,pos_type))
     type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
+    id$ = Mid(string$,FindString(string$, ",", pos_id+1)+1)
     Select type$
       Case "#squareBegin"
         type = #squareBegin
       Case "#squareEnd"
         type = #squareEnd
     EndSelect
-    addSquare(x,y,type)
+    addSquare(x,y,type,id$)
   Next
 EndProcedure
 
@@ -192,74 +192,16 @@ Procedure list2txt()
       Case #squareEnd
         type$ = "#squareEnd"
     EndSelect
-    txt$ = Str(every()\x)+","+Str(every()\y)+","+type$
+    txt$ = Str(every()\x)+","+Str(every()\y)+","+type$+","+every()\id
     AddGadgetItem(#editorSquares,-1,txt$)
   Next
 EndProcedure
 
 Procedure canvas2editor()
   ClearGadgetItems(#editor2proc)
-  proc("#canva = 13")
-  proc("#start = 1")
-  proc("#stop = 2")
-  proc("#area = 3")
-  proc("#squareBegin = 4")
-  proc("#squareEnd = 5")
-  proc("#white = 16777215")
-  proc("Structure dot")
-  proc("type.b")
-  proc("x.w")
-  proc("y.w")
-  proc("color.l")
-  proc("EndStructure")
-  proc("Global NewList all.dot()")
   proc("Procedure drawAll()")
   proc("StartDrawing(CanvasOutput(#canva))")
   proc("Box(0,0,300,300,0)")
-  proc("For i = 0 To ListSize(all())-1")
-  proc("SelectElement(all(),i)")
-  proc("type = all()\type")
-  proc("x = all()\x")
-  proc("y = all()\y")
-  proc("color = all()\color")
-  proc("Select type")
-  proc("Case #start")
-  proc("Circle(x,y,R,color)")
-  proc("If i > 0 And Not type = #stop")
-  proc("SelectElement(all(),i-1)")
-  proc("x2 = all()\x")
-  proc("y2 = all()\y")
-  proc("LineXY(x,y,x2,y2,color)")
-  proc("SelectElement(all(),i)")
-  proc("EndIf")
-  proc("Case #stop  ")
-  proc("Circle(x,y,R,color)")
-  proc("Case #area")
-  proc("FillArea(x,y,-1,color)")
-  proc("DrawingMode(#PB_2DDrawing_XOr)")
-  proc("Circle(x,y,R,color)")
-  proc("DrawingMode(#PB_2DDrawing_Default)")
-  proc("Case #squareBegin")
-  proc("Circle(x,y,R,color)")
-  proc("Case #squareEnd")
-  proc("DrawingMode(#PB_2DDrawing_Outlined)")
-  proc("SelectElement(all(),i-1)")
-  proc("x2 = all()\x")
-  proc("y2 = all()\y")
-  proc("Box(x,y,x2-x,y2-y,color)")
-  proc("DrawingMode(#PB_2DDrawing_Default)")
-  proc("Circle(x,y,R,color)")
-  proc("SelectElement(all(),i)")
-  proc("EndSelect")
-  proc("Next")
-  proc("StopDrawing()")
-  proc("EndProcedure")
-  proc("Procedure addDot(x,y,type=#start,color=#white)")
-  proc("AddElement(all())")
-  proc("all()\type = type")
-  proc("all()\x = x")
-  proc("all()\y = y")
-  proc("all()\color = color")
   proc("EndProcedure")
   list2txt()
   proc("OpenWindow(0,#PB_Ignore,#PB_Ignore,300,300,"+#DQUOTE$+#DQUOTE$+", #PB_Window_SystemMenu | #PB_Window_ScreenCentered )")
@@ -286,20 +228,19 @@ Macro clrBtn
   EndIf
 EndMacro
 
-Procedure squares()
-  addSquare(50,50,#squareBegin)
-  addSquare(100,100,#squareEnd)
-  addSquare(200,50,#squareBegin)
-  addSquare(150,100,#squareEnd)
-  addSquare(50,200,#squareBegin)
-  addSquare(100,150,#squareEnd)
-  addSquare(200,200,#squareBegin)
-  addSquare(150,150,#squareEnd)
-;   addDot(73,176)
+Procedure squares4()
+  addSquare(50,50,#squareBegin,"Tolik")
+  addSquare(100,100,#squareEnd,"2")
+  addSquare(200,50,#squareBegin,"Masha")
+  addSquare(150,100,#squareEnd,"4")
+  addSquare(50,200,#squareBegin,"Ivan")
+  addSquare(100,150,#squareEnd,"6")
+  addSquare(200,200,#squareBegin,"Max")
+  addSquare(150,150,#squareEnd,"8")
 EndProcedure
 
 Openwnd()
-squares()
+squares4()
 clrBtn
 canvas2editor()
 
@@ -335,10 +276,10 @@ Repeat
                   
                 Case #AddClickArea
                   If trigger
-                    addSquare(mX,mY,#squareEnd)
+                    addSquare(mX,mY,#squareEnd,Str(squareCounter))
                     trigger = 0
                   Else
-                    addSquare(mX,mY,#squareBegin)
+                    addSquare(mX,mY,#squareBegin,Str(squareCounter))
                     trigger = 1
                   EndIf
                   
@@ -349,6 +290,7 @@ Repeat
                     y = every()\y
                     If i>0
                       SelectElement(every(),i-1)
+                      number$ = every()\id
                       x2 = every()\x
                       y2 = every()\y
                       SelectElement(every(),i)
@@ -363,7 +305,7 @@ Repeat
                       EndIf
                       If popalSquare(mX,mY,x2,y2,objW,objH) 
                         Debug "HIT!!!"
-                        MessageRequester("HIT!!!","HIT!!!")
+                        MessageRequester("HIT!!!","You hit the square name "+number$)
                         offsetX = mX - x
                         offsetY = mY - y
                         selectedObject = i
@@ -485,12 +427,12 @@ Repeat
         CurrentColor = ColorRequester(CurrentColor)
         clrBtn
         
-      Case #stop
+      Case #stopLine
         SelectElement(all(),ListSize(all())-1)
         all()\type = #stop
         
       Case #squares
-        squares()
+        squares4()
         
     EndSelect
     drawAll()
@@ -530,10 +472,10 @@ Repeat
 ;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 63
-; FirstLine = 39
-; Folding = UD9
-; Markers = 345,528
+; CursorPosition = 307
+; FirstLine = 206
+; Folding = Eb+
+; Markers = 286,470
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
