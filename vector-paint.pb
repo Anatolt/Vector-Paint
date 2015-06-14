@@ -12,8 +12,7 @@ Structure dot
   color.l
 EndStructure
 
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.28", squareCounter, id$
-
+Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.29", squareCounter, id$
 
 #white = 16777215
 #red = 255
@@ -127,10 +126,15 @@ Procedure editor2canvas()
   For i=0 To CountGadgetItems(#editor)-1
     string$ = GetGadgetItemText(#editor,i)
     pos_type = FindString(string$, ",")+1
-    pos_color = FindString(string$, ",", pos_type+1)
+    startType = FindString(string$, ",", pos_type+1)+1
     x = Val(StringField(string$, 1, ","))
     y = Val(Mid(string$,pos_type))
-    type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
+    startColor = FindString(string$, ",", startType)+1
+    Debug "startColor="+Str(startColor)
+    Debug "startType="+Str(startType)
+    Debug "startColor-startType="+Str(startColor-startType)
+    type$ = Mid(string$,startType, startColor-startType-1)
+    Debug type$
     Select type$
       Case "#start"
         type = #start
@@ -139,8 +143,8 @@ Procedure editor2canvas()
       Case "#area"
         type = #area
     EndSelect
-    color = Val(Mid(string$,FindString(string$, ",", pos_color+1)+1))
-    Debug "addDot("+Str(x)+","+Str(y)+","+type$+","+Str(color)+")"
+    color = Val(Mid(string$,startColor))
+    Debug "addDot("+Str(x)+","+Str(y)+","+Str(type)+","+Str(color)+")"
     addDot(x,y,type,color)
   Next
 EndProcedure
@@ -150,17 +154,19 @@ Procedure editorSquares2canvas()
   For i=0 To CountGadgetItems(#editorSquares)-1
     string$ = GetGadgetItemText(#editorSquares,i)
     pos_type = FindString(string$, ",")+1
-    pos_id = FindString(string$, ",",pos_type+1)+1
+    startType = FindString(string$, ",", pos_type+1)+1
+    startID = FindString(string$, ",", startType)+1
     x = Val(StringField(string$, 1, ","))
     y = Val(Mid(string$,pos_type))
-    type$ = Mid(string$,FindString(string$, ",", pos_type+1)+1)
-    id$ = Mid(string$,FindString(string$, ",", pos_id+1)+1)
+    type$ = Mid(string$,startType,startID-startType-1)
+    id$ = Mid(string$,startID)
     Select type$
       Case "#squareBegin"
         type = #squareBegin
       Case "#squareEnd"
         type = #squareEnd
     EndSelect
+    Debug "addSquare("+Str(x)+","+Str(y)+","+type$+","+id$+")"
     addSquare(x,y,type,id$)
   Next
 EndProcedure
@@ -472,10 +478,10 @@ Repeat
 ;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 307
-; FirstLine = 206
+; CursorPosition = 22
+; FirstLine = 3
 ; Folding = Eb+
-; Markers = 286,470
+; Markers = 292,476
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
