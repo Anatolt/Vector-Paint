@@ -1,34 +1,13 @@
-﻿Structure square
-  x.w
-  y.w
-  type.b
-  id.s
-EndStructure
+﻿Global name$ = "Vector Paint v0.30", squareCounter, id$, squaresClr, R = 5
 
-Structure dot
-  x.w
-  y.w
-  type.b
-  color.l
-EndStructure
-
-Global NewList all.dot(), NewList every.square(), R = 5, name$ = "Vector Paint v0.29", squareCounter, id$
-
-#white = 16777215
-#red = 255
-#green = 65280
-Enumeration code
-  #start
-  #stop
-  #area
-  #squareBegin
-  #squareEnd
+Enumeration
   #canvas2editor
   #DebugBtns
   #IMAGE_Color
 EndEnumeration
 
 IncludeFile "vector-paint-form.pbf"
+IncludeFile "common.pb"
 
 Procedure Modulo(num)
   If num < 0
@@ -37,88 +16,11 @@ Procedure Modulo(num)
   ProcedureReturn num
 EndProcedure
 
-Procedure addDot(x,y,type=#start,color=#white)
-  AddElement(all())
-  all()\x = x
-  all()\y = y
-  all()\type = type
-  all()\color = color ;Random(#white-100)
-EndProcedure
-
-Procedure addSquare(x,y,type,id$="")
-  AddElement(every())
-  every()\id = id$
-  every()\x = x
-  every()\y = y
-  every()\type = type
-EndProcedure
-
 Procedure popalDot(mX, mY, objX, objY, objW = 5, objH = 5)
   If mX >= objX-R And mX <= objX+R And mY >= objY-R And mY <= objY+R
     ProcedureReturn #True
   EndIf
   ProcedureReturn #False
-EndProcedure
-
-Procedure popalSquare(mX, mY, objX, objY, objW, objH)
-  Debug "If mX >= objX And mX <= objX+objW And mY >= objY And mY <= objY+objH"
-  Debug "If "+Str(mX)+" >= "+Str(objX)+" And "+Str(mX)+" <= "+Str(objX+objW)+" And "+Str(mY)+" >= "+Str(objY)+" And "+Str(mY)+" <= "+Str(objY+objH)
-  If mX >= objX And mX <= objX+objW And mY >= objY And mY <= objY+objH
-    ProcedureReturn #True
-  EndIf
-  ProcedureReturn #False
-EndProcedure
-
-Procedure drawAll()
-  StartDrawing(CanvasOutput(#canva))
-  Box(0,0,300,300,0)
-  For i = 0 To ListSize(all())-1
-    SelectElement(all(),i)
-    type = all()\type
-    x = all()\x
-    y = all()\y
-    color = all()\color
-    Select type
-      Case #start
-        Circle(x,y,R,color)
-        If i > 0 And Not type = #stop
-          SelectElement(all(),i-1)
-          x2 = all()\x
-          y2 = all()\y
-          LineXY(x,y,x2,y2,color)
-          SelectElement(all(),i) ;без этой строчки при добавлении новой точки рядом с ней появляется еще одна
-        EndIf
-      Case #stop  
-        Circle(x,y,R,color)
-      Case #area
-        FillArea(x,y,-1,color)
-        DrawingMode(#PB_2DDrawing_XOr)
-        Circle(x,y,R,color)
-        DrawingMode(#PB_2DDrawing_Default)
-    EndSelect
-  Next
-  For i = 0 To ListSize(every())-1
-    SelectElement(every(),i)
-    type = every()\type
-    x = every()\x
-    y = every()\y
-    Select type
-      Case #squareBegin
-        Circle(x,y,R,#green)
-      Case #squareEnd
-        DrawingMode(#PB_2DDrawing_Outlined)
-        If i>0
-          SelectElement(every(),i-1)
-          x2 = every()\x
-          y2 = every()\y
-          Box(x,y,x2-x,y2-y,#green)
-          DrawingMode(#PB_2DDrawing_Default)
-          Circle(x,y,R,#green)
-        EndIf
-        SelectElement(every(),i)
-    EndSelect
-  Next
-  StopDrawing()
 EndProcedure
 
 Procedure editor2canvas()
@@ -171,8 +73,21 @@ Procedure editorSquares2canvas()
   Next
 EndProcedure
 
-Procedure proc(text$)
-  AddGadgetItem(#editor2proc,-1,text$)
+Procedure files2proc(name$)
+  file = 0
+  If name$
+    Debug "file "+name$+" opened ok"
+    If ReadFile(file,name$)
+      Debug "read "+name$+" file ok"
+      While Eof(file) = 0
+        string$=ReadString(file)
+        AddGadgetItem(#editor2proc,-1,string$)
+      Wend
+      CloseFile(file)
+    Else
+      MessageRequester("Ooops", "Cannot load "+name$)
+    EndIf
+  EndIf
 EndProcedure
 
 Procedure list2txt()
@@ -203,25 +118,18 @@ Procedure list2txt()
   Next
 EndProcedure
 
-Procedure canvas2editor()
+Procedure canvas2editors()
   ClearGadgetItems(#editor2proc)
-  proc("Procedure drawAll()")
-  proc("StartDrawing(CanvasOutput(#canva))")
-  proc("Box(0,0,300,300,0)")
-  proc("EndProcedure")
+  files2proc("common.pb")
   list2txt()
-  proc("OpenWindow(0,#PB_Ignore,#PB_Ignore,300,300,"+#DQUOTE$+#DQUOTE$+", #PB_Window_SystemMenu | #PB_Window_ScreenCentered )")
-  proc("CanvasGadget(#canva,0,0,300,300)")
-  proc("drawAll()")
-  proc("Repeat")
-  proc("Until WaitWindowEvent() = #PB_Event_CloseWindow")
+    files2proc("result.pb")
 EndProcedure
 
 Procedure addFewDots(num)
   For i = 0 To num
     addDot(Random(300),Random(300),#start,Random(#white))
   Next
-  canvas2editor()
+  canvas2editors()
 EndProcedure
 
 CurrentColor = Red(255)
@@ -248,7 +156,7 @@ EndProcedure
 Openwnd()
 squares4()
 clrBtn
-canvas2editor()
+canvas2editors()
 
 ; IncludeFile "vector-paint-keyb.pb"
 CurrentMode = #Squares2btns
@@ -358,7 +266,7 @@ Repeat
               selectedObject = -1
               ;drawAll()
             EndIf
-            canvas2editor()
+            canvas2editors()
         EndSelect
         
       Case #Add, #Delete, #Move, #Fill, #AddClickArea, #Squares2btns
@@ -379,8 +287,10 @@ Repeat
       Case #Hide
         If GetGadgetState(#Hide)
           R = 0
+          squaresClr = 0
         Else
           R = 5
+          squaresClr = #green
         EndIf
         
       Case #Clear
@@ -392,9 +302,7 @@ Repeat
         file = 0
         File$ = OpenFileRequester("Load Text...", "", "TXT Files|*.txt|All Files|*.*", 0)
         If File$
-          Debug "file opened ok"
           If ReadFile(file,File$)
-            Debug "read file ok"
             ClearGadgetItems(#editor)
             ClearList(all())
             While Eof(file) = 0
@@ -409,7 +317,7 @@ Repeat
         EndIf
         
       Case #Save
-        canvas2editor()
+        canvas2editors()
         File$ = SaveFileRequester("Save Text...", File$, "TXT Files|*.txt|All Files|*.*", 0)
         If File$; And (FileSize(File$) = -1)
           If GetGadgetItemText(#editor,0) And CreateFile(file,File$)
@@ -478,10 +386,10 @@ Repeat
 ;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 22
-; FirstLine = 3
-; Folding = Eb+
-; Markers = 292,476
+; CursorPosition = 123
+; FirstLine = 111
+; Folding = -8
+; Markers = 76,200
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
