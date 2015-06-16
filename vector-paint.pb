@@ -1,4 +1,4 @@
-﻿Global name$ = "Vector Paint v0.30", squareCounter, id$, squaresClr, R = 5
+﻿Global name$ = "Vector Paint v0.31", squareCounter, id$, squaresClr, R = 5
 
 Enumeration
   #canvas2editor
@@ -8,6 +8,7 @@ EndEnumeration
 
 IncludeFile "vector-paint-form.pbf"
 IncludeFile "common.pb"
+squaresClr = #green
 
 Procedure Modulo(num)
   If num < 0
@@ -90,7 +91,7 @@ Procedure files2proc(name$)
   EndIf
 EndProcedure
 
-Procedure list2txt()
+Procedure list2txt(param = 0)
   ClearGadgetItems(#editor)
   ForEach all()
     Select all()\type
@@ -103,7 +104,9 @@ Procedure list2txt()
     EndSelect
     txt$ = Str(all()\x)+","+Str(all()\y)+","+type$+","+Str(all()\color)
     AddGadgetItem(#editor,-1,txt$)
-    AddGadgetItem(#editor2proc,-1,"addDot("+txt$+")")
+    If param
+      AddGadgetItem(#editor2proc,-1,"addDot("+txt$+")")
+    EndIf
   Next
   ClearGadgetItems(#editorSquares)
   ForEach every()
@@ -115,13 +118,16 @@ Procedure list2txt()
     EndSelect
     txt$ = Str(every()\x)+","+Str(every()\y)+","+type$+","+every()\id
     AddGadgetItem(#editorSquares,-1,txt$)
+    If param
+      AddGadgetItem(#editor2proc,-1,"addSquare("+txt$+")")
+    EndIf
   Next
 EndProcedure
 
-Procedure canvas2editors()
+Procedure canvas2resultProc()
   ClearGadgetItems(#editor2proc)
   files2proc("common.pb")
-  list2txt()
+  list2txt(1)
   files2proc("result.pb")
 EndProcedure
 
@@ -129,7 +135,7 @@ Procedure addFewDots(num)
   For i = 0 To num
     addDot(Random(300),Random(300),#start,Random(#white))
   Next
-  canvas2editors()
+  list2txt()
 EndProcedure
 
 CurrentColor = Red(255)
@@ -156,7 +162,7 @@ EndProcedure
 Openwnd()
 squares4()
 clrBtn
-canvas2editors()
+list2txt()
 
 ; IncludeFile "vector-paint-keyb.pb"
 CurrentMode = #Squares2btns
@@ -198,40 +204,7 @@ Repeat
                   EndIf
                   
                 Case #Squares2btns
-                  For i = ListSize(every())-1 To 0 Step -2
-                    SelectElement(every(),i)
-                    x = every()\x
-                    y = every()\y
-                    If i>0
-                      SelectElement(every(),i-1)
-                      number$ = every()\id
-                      x2 = every()\x
-                      y2 = every()\y
-                      SelectElement(every(),i)
-                      objW = Modulo(x-x2)
-                      objH = Modulo(y-y2)
-                      Debug "x="+Str(x) +",y="+ Str(y)+" | x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
-                      If x < x2
-                        x2 = x
-                      EndIf
-                      If y < y2
-                        y2 = y
-                      EndIf
-                      If popalSquare(mX,mY,x2,y2,objW,objH) 
-                        Debug "HIT!!!"
-                        MessageRequester("HIT!!!","You hit the square name "+number$)
-                        offsetX = mX - x
-                        offsetY = mY - y
-                        selectedObject = i
-                        Break
-                      Else
-                        Debug "Fail"
-                      EndIf
-                    Else
-                      Debug "No square"
-                    EndIf
-                  Next
-                  Debug "==="
+                  squares2btns
                   
                 Case #Move, #Delete 
                   For i = ListSize(all())-1 To 0 Step -1
@@ -266,7 +239,7 @@ Repeat
               selectedObject = -1
               ;drawAll()
             EndIf
-            canvas2editors()
+            list2txt()
         EndSelect
         
       Case #Add, #Delete, #Move, #Fill, #AddClickArea, #Squares2btns
@@ -317,7 +290,7 @@ Repeat
         EndIf
         
       Case #Save
-        canvas2editors()
+        list2txt()
         File$ = SaveFileRequester("Save Text...", File$, "TXT Files|*.txt|All Files|*.*", 0)
         If File$; And (FileSize(File$) = -1)
           If GetGadgetItemText(#editor,0) And CreateFile(file,File$)
@@ -347,6 +320,9 @@ Repeat
         
       Case #squares
         squares4()
+        
+      Case #Procedure2copy
+        canvas2resultProc()
         
     EndSelect
     drawAll()
@@ -386,8 +362,9 @@ Repeat
 ;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
+; CursorPosition = 324
 ; Folding = -8
-; Markers = 76,200
+; Markers = 77,206
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico

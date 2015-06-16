@@ -1,4 +1,5 @@
-﻿Structure square
+﻿;common.pb
+Structure square
   x.w
   y.w
   type.b
@@ -97,8 +98,44 @@ Procedure popalSquare(mX, mY, objX, objY, objW, objH)
   EndIf
   ProcedureReturn #False
 EndProcedure
+
+Macro squares2btns
+  For i = ListSize(every())-1 To 0 Step -2
+    SelectElement(every(),i)
+    x = every()\x
+    y = every()\y
+    If i>0
+      SelectElement(every(),i-1)
+      number$ = every()\id
+      x2 = every()\x
+      y2 = every()\y
+      SelectElement(every(),i)
+      objW = Modulo(x-x2)
+      objH = Modulo(y-y2)
+      Debug "x="+Str(x) +",y="+ Str(y)+" | x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
+      If x < x2
+        x2 = x
+      EndIf
+      If y < y2
+        y2 = y
+      EndIf
+      If popalSquare(mX,mY,x2,y2,objW,objH) 
+        Debug "HIT the "+number$
+        MessageRequester("HIT!!!","You hit the square name "+number$)
+        offsetX = mX - x
+        offsetY = mY - y
+        selectedObject = i
+        Break
+      Else
+        Debug "Fail"
+      EndIf
+    Else
+      MessageRequester("No squares","There is no squares on canvas. Add some")
+    EndIf
+  Next
+  Debug "==="
+EndMacro
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 23
 ; Folding = -
 ; EnableUnicode
 ; EnableXP
