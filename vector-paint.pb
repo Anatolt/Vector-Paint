@@ -122,7 +122,7 @@ Procedure canvas2editors()
   ClearGadgetItems(#editor2proc)
   files2proc("common.pb")
   list2txt()
-    files2proc("result.pb")
+  files2proc("result.pb")
 EndProcedure
 
 Procedure addFewDots(num)
@@ -386,8 +386,6 @@ Repeat
 ;   EndIf
 Until event = #PB_Event_CloseWindow
 ; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 123
-; FirstLine = 111
 ; Folding = -8
 ; Markers = 76,200
 ; EnableUnicode
