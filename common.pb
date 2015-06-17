@@ -13,16 +13,25 @@ Structure dot
   color.l
 EndStructure
 
-#start = 1
-#stop = 2
-#area = 3
-#squareBegin = 4
-#squareEnd = 5
+Enumeration
+  #start
+  #stop
+  #area
+  #squareBegin
+  #squareEnd
+EndEnumeration
 #white = 16777215
 #red = 255
 #green = 65280
 
 Global NewList all.dot(), NewList every.square()
+
+Procedure Modulo(num)
+  If num < 0
+    ProcedureReturn -num
+  EndIf
+  ProcedureReturn num
+EndProcedure
 
 Procedure addDot(x,y,type=#start,color=#white)
   AddElement(all())
@@ -112,7 +121,7 @@ Macro squares2btns
       SelectElement(every(),i)
       objW = Modulo(x-x2)
       objH = Modulo(y-y2)
-      Debug "x="+Str(x) +",y="+ Str(y)+" | x2="+Str(x2) +",y2="+ Str(y2)+" objW="+Str(objW)+" objH="+Str(objH)
+      Debug "mX="+Str(mX)+",mY="+Str(mY)+",x="+Str(x) +",y="+ Str(y)+",x2="+Str(x2) +",y2="+ Str(y2)+",objW="+Str(objW)+",objH="+Str(objH)
       If x < x2
         x2 = x
       EndIf
@@ -135,7 +144,9 @@ Macro squares2btns
   Next
   Debug "==="
 EndMacro
-; IDE Options = PureBasic 5.31 (Windows - x86)
-; Folding = -
+; IDE Options = PureBasic 5.31 (Windows - x64)
+; CursorPosition = 103
+; FirstLine = 103
+; Folding = --
 ; EnableUnicode
 ; EnableXP

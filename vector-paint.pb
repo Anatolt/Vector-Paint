@@ -1,4 +1,4 @@
-﻿Global name$ = "Vector Paint v0.31", squareCounter, id$, squaresClr, R = 5
+﻿Global name$ = "Vector Paint v0.32", squareCounter, id$, squaresClr, R = 5
 
 Enumeration
   #canvas2editor
@@ -9,13 +9,6 @@ EndEnumeration
 IncludeFile "vector-paint-form.pbf"
 IncludeFile "common.pb"
 squaresClr = #green
-
-Procedure Modulo(num)
-  If num < 0
-    ProcedureReturn -num
-  EndIf
-  ProcedureReturn num
-EndProcedure
 
 Procedure popalDot(mX, mY, objX, objY, objW = 5, objH = 5)
   If mX >= objX-R And mX <= objX+R And mY >= objY-R And mY <= objY+R
@@ -116,7 +109,7 @@ Procedure list2txt(param = 0)
       Case #squareEnd
         type$ = "#squareEnd"
     EndSelect
-    txt$ = Str(every()\x)+","+Str(every()\y)+","+type$+","+every()\id
+    txt$ = Str(every()\x)+","+Str(every()\y)+","+type$+","+#DQUOTE$+every()\id+#DQUOTE$
     AddGadgetItem(#editorSquares,-1,txt$)
     If param
       AddGadgetItem(#editor2proc,-1,"addSquare("+txt$+")")
@@ -126,6 +119,7 @@ EndProcedure
 
 Procedure canvas2resultProc()
   ClearGadgetItems(#editor2proc)
+  files2proc("result-enum.pb")
   files2proc("common.pb")
   list2txt(1)
   files2proc("result.pb")
@@ -361,10 +355,11 @@ Repeat
 ;     EndSelect
 ;   EndIf
 Until event = #PB_Event_CloseWindow
-; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 324
-; Folding = -8
-; Markers = 77,206
+; IDE Options = PureBasic 5.31 (Windows - x64)
+; CursorPosition = 10
+; FirstLine = 10
+; Folding = -0
+; Markers = 70,200
 ; EnableUnicode
 ; EnableXP
 ; UseIcon = favicon.ico
