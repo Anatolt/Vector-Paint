@@ -20,9 +20,9 @@ Enumeration
   #squareBegin
   #squareEnd
 EndEnumeration
-#white = 16777215
-#red = 255
-#green = 65280
+#White = 16777215
+#Red = 255
+#Green = 65280
 
 Global NewList all.dot(), NewList every.square()
 
@@ -33,7 +33,7 @@ Procedure Modulo(num)
   ProcedureReturn num
 EndProcedure
 
-Procedure addDot(x,y,type=#start,color=#white)
+Procedure addDot(x,y,type=#start,color=#White)
   AddElement(all())
   all()\x = x
   all()\y = y
@@ -144,9 +144,3 @@ Macro squares2btns
   Next
   Debug "==="
 EndMacro
-; IDE Options = PureBasic 5.31 (Windows - x64)
-; CursorPosition = 103
-; FirstLine = 103
-; Folding = --
-; EnableUnicode
-; EnableXP

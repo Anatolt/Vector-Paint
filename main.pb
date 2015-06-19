@@ -6,9 +6,9 @@ Enumeration
   #IMAGE_Color
 EndEnumeration
 
-IncludeFile "vector-paint-form.pbf"
+IncludeFile "form.pbf"
 IncludeFile "common.pb"
-squaresClr = #green
+squaresClr = #Green
 
 Procedure popalDot(mX, mY, objX, objY, objW = 5, objH = 5)
   If mX >= objX-R And mX <= objX+R And mY >= objY-R And mY <= objY+R
@@ -127,7 +127,7 @@ EndProcedure
 
 Procedure addFewDots(num)
   For i = 0 To num
-    addDot(Random(300),Random(300),#start,Random(#white))
+    addDot(Random(300),Random(300),#start,Random(#White))
   Next
   list2txt()
 EndProcedure
@@ -158,7 +158,7 @@ squares4()
 clrBtn
 list2txt()
 
-; IncludeFile "vector-paint-keyb.pb"
+; IncludeFile "keyb.pb"
 CurrentMode = #Squares2btns
 DisableGadget(#Squares2btns,1)
 
@@ -200,7 +200,7 @@ Repeat
                 Case #Squares2btns
                   squares2btns
                   
-                Case #Move, #Delete 
+                Case #Move, #DEL
                   For i = ListSize(all())-1 To 0 Step -1
                     SelectElement(all(),i)
                     If popalDot(mX,mY,all()\x,all()\y)
@@ -208,7 +208,7 @@ Repeat
                       offsetX = mX - all()\x
                       offsetY = mY - all()\y
                       selectedObject = i
-                      If CurrentMode = #Delete
+                      If CurrentMode = #DelDot
                         Debug "deleted element [" + Str(all()\x) + "," + Str(all()\y) + ","+i+"]"
                         DeleteElement(all())
                       EndIf
@@ -236,9 +236,9 @@ Repeat
             list2txt()
         EndSelect
         
-      Case #Add, #Delete, #Move, #Fill, #AddClickArea, #Squares2btns
+      Case #Add, #DelDot, #Move, #Fill, #AddClickArea, #Squares2btns
         EventGadget = EventGadget()
-        For Gadget = #Add To #Delete
+        For Gadget = #Add To #DelDot
           If Gadget = EventGadget
             DisableGadget(Gadget, 1) 
           Else
@@ -257,7 +257,7 @@ Repeat
           squaresClr = 0
         Else
           R = 5
-          squaresClr = #green
+          squaresClr = #Green
         EndIf
         
       Case #Clear
@@ -355,12 +355,3 @@ Repeat
 ;     EndSelect
 ;   EndIf
 Until event = #PB_Event_CloseWindow
-; IDE Options = PureBasic 5.31 (Windows - x64)
-; CursorPosition = 10
-; FirstLine = 10
-; Folding = -0
-; Markers = 70,200
-; EnableUnicode
-; EnableXP
-; UseIcon = favicon.ico
-; Executable = ..\..\..\Desktop\123.exe

@@ -19,7 +19,7 @@ Enumeration FormGadget
   #Fill
   #AddClickArea
   #Squares2btns
-  #Delete
+  #DelDot
   #Random
   #Hide
   #Clear
@@ -47,7 +47,7 @@ Procedure Openwnd(x = #PB_Ignore, y = #PB_Ignore, width = 910, height = 360)
   ButtonGadget(#Fill, 0, 120, 100, 30, "Fill")
   ButtonGadget(#AddClickArea, 0, 270, 100, 30, "AddClickArea")
   ButtonGadget(#Squares2btns, 0, 300, 100, 30, "Squares2btns")
-  ButtonGadget(#Delete, 0, 90, 100, 30, "Delete Dot")
+  ButtonGadget(#DelDot, 0, 90, 100, 30, "Delete Dot")
   ButtonGadget(#Random, 0, 180, 100, 30, "Random")
   CheckBoxGadget(#Hide, 10, 150, 90, 30, "Hide Dots")
   ButtonGadget(#Clear, 0, 210, 100, 30, "Clear")
