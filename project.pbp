@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.31 (Windows - x86)">
+  <section name="config">
+    <options closefiles="1" openmode="0" name="Vector-Paint"/>
+  </section>
+  <section name="data">
+    <explorer view="" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2015-06-25 11:53" user="Tolik" host="R580"/>
+  </section>
+  <section name="files">
+    <file name="common.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="35f2c3663a252c9862d314c11ff15dae"/>
+    </file>
+    <file name="form.pbf">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="21c2716726438126956f4aee9b759e64"/>
+    </file>
+    <file name="keyb.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="2cf0f9cbfda46e844ba9beba7dcbe5e5"/>
+    </file>
+    <file name="main.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="bf978339d306920fdff79a18fbabe4dd"/>
+    </file>
+    <file name="result-enum.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="d626f4ae41f7405e7ef62e2b8410be60"/>
+    </file>
+    <file name="result.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="9c2e78b1a7eac418478bbe52e40aed78"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Default Target" enabled="1" default="1">
+      <inputfile value="main.pb"/>
+      <outputfile value=""/>
+      <executable value="vector-paint.exe"/>
+      <options unicode="1" xpskin="1" debug="1"/>
+      <icon enable="1">favicon.ico</icon>
+    </target>
+  </section>
+</project>

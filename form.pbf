@@ -39,7 +39,7 @@ EndEnumeration
 
 
 Procedure Openwnd(x = #PB_Ignore, y = #PB_Ignore, width = 910, height = 360)
-  OpenWindow(#wnd, x, y, width, height, name$, #PB_Window_SystemMenu | #PB_Window_MinimizeGadget | #PB_Window_BorderLess | #PB_Window_ScreenCentered)
+  OpenWindow(#wnd, x, y, width, height, name$, #PB_Window_SystemMenu | #PB_Window_MinimizeGadget | #PB_Window_ScreenCentered)
   CreateStatusBar(0, WindowID(#wnd))
   AddStatusBarField(910)
   ButtonGadget(#Add, 0, 0, 100, 30, "Add Line")

@@ -52,7 +52,8 @@ EndProcedure
 Procedure drawAll()
   StartDrawing(CanvasOutput(#canva))
   Box(0,0,300,300,0)
-  For i = 0 To ListSize(all())-1
+  fin = ListSize(all())-1
+  For i = 0 To fin
     SelectElement(all(),i)
     type = all()\type
     x = all()\x
@@ -77,7 +78,8 @@ Procedure drawAll()
         DrawingMode(#PB_2DDrawing_Default)
     EndSelect
   Next
-  For i = 0 To ListSize(every())-1
+  fin = ListSize(every())-1
+  For i = 0 To fin
     SelectElement(every(),i)
     type = every()\type
     x = every()\x
